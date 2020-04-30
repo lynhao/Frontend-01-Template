@@ -18,7 +18,21 @@ function strip(num) {
     return +parseFloat(+num.toPrecision(12))
 }
 
-function convertNumberToString(digist, x) {
+function isPositive(zero) {
+	if (1 / zero == 'Infinity') {
+		return true
+	} else if (1 / zero == '-Infinity') {
+		return false
+	}
+}
+
+function convertNumberToString(digist, x = 10) {
+	if (isNaN(digist)) return NaN;
+	if (digist === 0) return 0;
+	if (digist < 0) {
+		return '-' + Math.abs(digist)
+	}
+	if (digist === '+∞') return Infinity;
 	if (x < 2 || x > 36) {
 		throw 'radix argument must be between 2 and 36'
 	}
