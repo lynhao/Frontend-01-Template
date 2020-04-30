@@ -30,7 +30,7 @@ function convertNumberToString(digist, x = 10) {
 	if (isNaN(digist)) return NaN;
 	if (digist === 0) return 0;
 	if (digist < 0) {
-		return '-' + Math.abs(digist)
+		return '-' + convertNumberToString(Math.abs(digist))
 	}
 	if (digist === '+∞') return Infinity;
 	if (x < 2 || x > 36) {
