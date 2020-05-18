@@ -1,4 +1,5 @@
 const net = require("net")
+const parser = require('./parser')
 
 class Request {
   // M: url = host + port + path
@@ -44,7 +45,7 @@ ${this.bodyText}
         })
       }
       connection.on('data', (data) => {
-        console.log(data.toString())
+        // console.log(data.toString())
         parser.receive(data.toString());
         // console.log(parser.statusLine)
         // console.log(parser.headers)
@@ -169,20 +170,19 @@ class TrunkedBodyParser {
     // console.log(this.current)
     if(this.current === this.WAITING_LENGTH) {
       if (char === '\r') {
-        console.log('---', this.length)
+        // console.log('---', this.length)
         if (this.length === 0) {
-          console.log(this.content);
-          console.log('/////////');
+          // console.log(this.content);
+          // console.log('/////////');
           this.isFinished = true;
         }
         this.current = this.WAITING_LENGTH_LINE_END;
       } else {
         // console.log(this.length)
-        // this.length *= 10;
         this.length *= 16;
         // console.log(this.length)
         // this.length += char.charCodeAt(0) - '0'.charCodeAt(0);
-        this.length += parseInt(char, 16)
+        this.length += parseInt(char, 16);
         // console.log('length', this.length)
       }
     } else if(this.current === this.WAITING_LENGTH_LINE_END) {
@@ -224,7 +224,13 @@ void (async function() {
     }
   })
    let response = await request.send();
-   console.log(response)
+   // console.log(response)
+   let dom = parser.parseHTML(response.body)
+  //  console.log(JSON.stringify(dom));
+  //  console.log(JSON.stringify(dom));
+  console.log(JSON.stringify(dom, null, "    "));
+  // console.log(dom instanceof Object);
+  console.log(dom);
 })()
 
 class Response {
