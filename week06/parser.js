@@ -100,6 +100,7 @@ function match(element, selector) {
 	} else if (selector.charAt(0) === ".") {
 		var attr = element.attributes.filter(attr => attr.name === "class")[0];
 		if (attr) {
+			// 处理有多个class选择器的时候
 			let _arr = attr.value.split(' ')
 			if (_arr.includes(selector.replace(".", ''))) {
 				return true;
