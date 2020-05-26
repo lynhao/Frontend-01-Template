@@ -109,7 +109,7 @@ var pattern = 'abaabbabaab';
 // var pattern = 'abaabcac';
 var _next = next(pattern);
 function match(string, pattern) {
-    let state = loop;
+	let state = loop;
 	return function () {
 		for (let j = 0; j < pattern.length; j++) {
 			for (let i = 0; i < string.length; i++) {
@@ -119,7 +119,7 @@ function match(string, pattern) {
 					break;
 				}
 			}
-		}	
+		}
 	}();
 }
 function matchNext(string, pattern, i, j) {
@@ -135,8 +135,8 @@ function loop(string, pattern, i, j) {
 	}
 	if (string[i] === pattern[j]) {
 		return matchNext(string, pattern, i, j);
-    }
-    this.j = j;
+	}
+	this.j = j;
 	return loop;
 }
 /**
@@ -166,7 +166,7 @@ function replacePosition(string, pattern, i, j) {
  * @param {*} j 
  */
 function alreadyMatched(string, pattern, i, j) {
-	console.log(`匹配到了, 位置在区间 [${i - pattern.length + 1 }, ${i}]`)
+	console.log(`匹配到了, 位置在区间 [${i - pattern.length + 1}, ${i}]`)
 	return fin;
 }
 /**
