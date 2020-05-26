@@ -39,6 +39,10 @@ function loop(string, pattern, i, j) {
 	if (string[i] === pattern[j]) {
 		return matchNext(string, pattern, i, j);
 	}
+	if ((j === 0 && i === string.length - 1) || (string.length - i <= pattern.length))  {
+		console.log(`匹配结束，未能匹配成功！`)
+		return kill;
+	}
 	this.j = j;
 	return loop;
 }
@@ -56,9 +60,9 @@ function replacePosition(string, pattern, i, j) {
  * 1. 当模式串和主串的匹配到最后一位，发现匹配不了, 心想坑爹啊，真是浪费表情
  * 2. 当主串匹配到一半，发现后面不可能再也不可能跟模式串匹配成功，想起第一种情况，就及时止损出局了
  */
-	if ((i === string.length - 1 && j < pattern.length) || (string.length - i < pattern.length)) {
+	if ((i === string.length - 1 && j < pattern.length) || (string.length - i <= pattern.length)) {
 		console.log(`匹配结束，未能匹配成功！`)
-		return kill
+		return kill;
 	}
 	if (this.j > 0 && pattern[this.j] !== string[i]) {
 		return replacePosition(string, pattern, i, this.j)
@@ -88,8 +92,10 @@ function fin() {
 function kill() {
 	return kill
 }
-var string = 'abaabaabbabaaabaabbabaab';
-var pattern = 'abaabbabaab';
+// var string = 'abaabaabbabaaabaabbabaab';
+// var pattern = 'abaabbabaab';
+var string = 'evb'
+var pattern = 'vv'
 // var string = 'abcabcab';
 // var pattern = 'cab';
 // var string = 'abcabcabx';
