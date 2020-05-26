@@ -96,18 +96,6 @@ function next(d) {
  * @param {*} j 下标
  */
 
-var string = 'abaabaabbabaaabaabbabaab';
-var pattern = 'abaabbabaab';
-
-// var string = 'abcabcab';
-// var pattern = 'cab';
-
-// var string = 'abcabcabx';
-// var pattern = 'abx';
-
-// var string = 'acabaabaabcaccaabc';
-// var pattern = 'abaabcac';
-var _next = next(pattern);
 function match(string, pattern) {
 	let state = loop;
 	return function () {
@@ -166,7 +154,7 @@ function replacePosition(string, pattern, i, j) {
  * @param {*} j 
  */
 function alreadyMatched(string, pattern, i, j) {
-	console.log(`匹配到了, 位置在区间 [${i - pattern.length + 1}, ${i}]`)
+	console.log(`匹配到了, 位置在区间 [${i - pattern.length + 1}, ${i + 1}]`)
 	return fin;
 }
 /**
@@ -175,4 +163,13 @@ function alreadyMatched(string, pattern, i, j) {
 function fin() {
 	return fin
 }
+// var string = 'abaabaabbabaaabaabbabaab';
+// var pattern = 'abaabbabaab';
+// var string = 'abcabcab';
+// var pattern = 'cab';
+// var string = 'abcabcabx';
+// var pattern = 'abx';
+var string = 'acabaabaabcaccaabc';
+var pattern = 'abaabcac';
+var _next = next(pattern);
 match(string, pattern);
