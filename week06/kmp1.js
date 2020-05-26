@@ -224,3 +224,4 @@ function match(s, m) {
 // // match('abcabcabx','abx')
 // // match('acabaabaabcaccaabc','abaabcac')
 // // match2()
+module.exports = next;
