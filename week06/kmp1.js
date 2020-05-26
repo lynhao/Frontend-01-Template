@@ -100,7 +100,7 @@ function match(s, m) {
 			j++;
 		}
 		if (j === m.length) {
-			console.log(i)
+			console.log(i + 1 - m.length)
 			return i + 1 - m.length;
 		}
 	}
@@ -109,123 +109,118 @@ function match(s, m) {
 //============状态机实现=================
 
 
-/**
- * 
- * @param {*} string 主串
- * @param {*} pattern 模式串
- * @param {*} _next PMT（字符串的前缀集合与后缀集合的交集中最长元素的长度）数组向右移动一位后得到的数组
- * @param {*} i 下标
- * @param {*} j 下标
- */
+// /**
+//  * 
+//  * @param {*} string 主串
+//  * @param {*} pattern 模式串
+//  * @param {*} _next PMT（字符串的前缀集合与后缀集合的交集中最长元素的长度）数组向右移动一位后得到的数组
+//  * @param {*} i 下标
+//  * @param {*} j 下标
+//  */
 
-var string = 'abaabaabbabaaabaabbabaab';
-var pattern = 'abaabbabaab';
-var i = 0;
-var j = 0;
-var flag = false;
-// var string = 'acabaabaabcaccaabc';
-// var pattern = 'abaabcac';
-var _next = next(pattern);
-function match2(string, pattern, nextArr) {
-	let a = i;
-	let b = j;
-	// for (i; i < string.length; i++) {
-	// 	for (j; j < pattern.length; j++) {
-	// 		if (j > 0 && pattern[j] !== string[i]) {
-	// 			return state(string, pattern, _next, i, j);
-	// 		}
-	// 		if (string[i] === pattern[j]) {
-	// 			return matchNext(string, pattern, _next, i, j);
-	// 		}
-	// 		break;
-	// 	}
-	// }
-	let state = loop;
-	// void function() {
-	// 	var i1 = 0;
-	// 	var j2 = 0;
-	// 	for (j; j < pattern.length; j++) {
-	// 		for (i; i < string.length; i++) {
-	// 			console.log('i=' + i, 'j=' + j)
-	// 			state = state(string, pattern, _next, i, j);
-	// 			if (state === fin) {
-	// 				break;
-	// 			}
-	// 		}
-	// 	}
-	// }()
-	return function () {
-		for (j; j < pattern.length; j++) {
-			flag = false;
-			// i = i;
-			// state = state(string, pattern, i, j);
-			// if (state === fin) {
-			// 	break;
-			// }
-			for (i; i < string.length; i++) {
-				console.log('i=' + i, 'j=' + j)
-				state = state(string, pattern, i, j);
-				if (state === fin) {
-					break;
-				}
-			}
-		}
-	}();
-}
-function matchNext(string, pattern, i, p) {
-	j = p + 1;
-	flag = true;
-	if (j === pattern.length) {
-		return alreadyMatched(string, pattern, i, j)
-	}
-	// i = i + 1;
-	return loop
-}
-/**
- * 
- * @param {*} string 
- * @param {*} pattern 
- * @param {*} _next 
- * @param {*} i 
- * @param {*} j 
- */
-function alreadyMatched(string, pattern, i, j) {
-	console.log(i + 1 - pattern.length)
-	return fin;
-}
-/**
- * 结束
- */
-function fin() {
-	return fin
-}
-function loop(string, pattern, i, j) {
-	if (j > 0 && pattern[j] !== string[i]) {
-		return replacePosition(string, pattern, i, j)
-	}
-	if (string[i] === pattern[j]) {
-		return matchNext(string, pattern, i, j);
-	}
-	// i = i + 1;
-	return loop;
-}
-/**
- * 将pattern[next[j]]移到pattern[j]位置上, 其他项对应移动同等距离
- * @param {} string 
- * @param {*} pattern 
- * @param {*} next 
- * @param {*} i 
- * @param {*} j 
- */
-function replacePosition(string, pattern, i, j) {
-	j = _next[j];
-	if (j > 0 && pattern[j] !== string[i]) {
-		return replacePosition(string, pattern, i, j)
-	}
-	if (string[i] === pattern[j]) {
-		return matchNext(string, pattern, i, j);
-	}
-	// i = i + 1;
-	return loop
-}
-match2(string, pattern);  //5
+// // var string = 'abaabaabbabaaabaabbabaab';
+// // var pattern = 'abaabbabaab';
+
+// var flag = false;
+// var string = 'abcabcabx';
+// var pattern = 'abx';
+// var _next = next(pattern);
+
+// console.log(this)
+// function match2(string, pattern) {
+// 	// for (i; i < string.length; i++) {
+// 	// 	for (j; j < pattern.length; j++) {
+// 	// 		if (j > 0 && pattern[j] !== string[i]) {
+// 	// 			return state(string, pattern, _next, i, j);	
+// 	// 		}
+// 	// 		if (string[i] === pattern[j]) {
+// 	// 			return matchNext(string, pattern, _next, i, j);
+// 	// 		}
+// 	// 		break;
+// 	// 	}
+// 	// }
+// 	let state = loop;
+// 	// void function() {
+// 	// 	var i1 = 0;
+// 	// 	var j2 = 0;
+// 	// 	for (j; j < pattern.length; j++) {
+// 	// 		for (i; i < string.length; i++) {
+// 	// 			console.log('i=' + i, 'j=' + j)
+// 	// 			state = state(string, pattern, _next, i, j);
+// 	// 			if (state === fin) {
+// 	// 				break;
+// 	// 			}
+// 	// 		}
+// 	// 	}
+// 	// }()
+// 	return function () {
+// 		for (let j = 0; j < pattern.length; j++) {
+// 			for (let i = 0; i < string.length; i++) {
+// 				state = state(string, pattern, i, j);
+// 				j = this.j
+// 				if (state === fin) {
+// 					break;
+// 				}
+// 			}
+// 		}	
+// 	}();
+// }
+// function matchNext(string, pattern, i, j) {
+// 	this.j = j + 1;
+// 	if (this.j === pattern.length) {
+// 		return alreadyMatched(string, pattern, i, this.j)
+// 	}
+// 	return loop
+// }
+// // console.log('global', j)
+// /**
+//  * 
+//  * @param {*} string 
+//  * @param {*} pattern 
+//  * @param {*} _next 
+//  * @param {*} i 
+//  * @param {*} j 
+//  */
+// function alreadyMatched(string, pattern, i, j) {
+// 	console.log(i + 1 - pattern.length)
+// 	return fin;
+// }
+// /**
+//  * 结束
+//  */
+// function fin() {
+// 	return fin
+// }
+// function loop(string, pattern, i, j) {
+// 	if (j > 0 && pattern[j] !== string[i]) {
+// 		return replacePosition(string, pattern, i, j)
+// 	}
+// 	if (string[i] === pattern[j]) {
+// 		return matchNext(string, pattern, i, j);
+// 	}
+// 	this.j = j;
+// 	return loop;
+// }
+// /**
+//  * 将pattern[next[j]]移到pattern[j]位置上, 其他项对应移动同等距离
+//  * @param {} string 
+//  * @param {*} pattern 
+//  * @param {*} next 
+//  * @param {*} i 
+//  * @param {*} j 
+//  */
+// function replacePosition(string, pattern, i, j) {
+// 	this.j = _next[j];
+// 	if (this.j > 0 && pattern[this.j] !== string[i]) {
+// 		return replacePosition(string, pattern, i, this.j)
+// 	}
+// 	if (string[i] === pattern[this.j]) {
+// 		return matchNext(string, pattern, i, this.j);
+// 	}
+// 	return loop
+// }
+// match2.call(match2, string, pattern);  //5
+// // match('abcabcab','cab')
+// // match('abcabcabx','abx')
+// // match('acabaabaabcaccaabc','abaabcac')
+// // match2()
