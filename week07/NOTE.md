@@ -202,4 +202,66 @@ css选择器会带上特定的命名空间
 
 字面意思是合格规则，就是我们平时会用的css，由选择器和属性指定构成的规则
 
+#### combination
 
+- Descendant combinator(空格)
+
+后代组合器
+> h1 em 会选中h1节点后代中的<b>所有</b>em节点，结果very会变成黄色
+
+```html
+<h1>This <span class="myclass">headlineis <em>very</em> important</span></h1>
+```
+```css
+h1 em {
+	color: yellow
+}
+```
+- Child combinator (>)
+
+子代组合器
+> h1 > span 会选中符合条件的span节点，结果headlineis verygood important会变成黄色
+
+```html
+<h1>This <span class="myclass">headlineis <em>very</em> important</span></h1>
+```
+```css
+h1 > span {
+	color: yellow
+}
+```
+- Next-sibling combinator (+)
+
+直接后继组合器
+> h1 + h2 会选中兄弟节点是h2,结果 brother 会变成黄色
+
+```html
+<h1>This <span class="myclass">headlineis <em>very</em> important</span></h1>
+<h2>brother</h2>
+```
+```css
+h1 + h2 {
+	color: yellow
+}
+```
+- Subsequent-sibling combinator (~)
+
+后继组合器， 区别前面的直接后继选择器它会选中所有符合的条件的后继节点，也就是后继节点跟当前节点拥有同一个父节点
+
+> brother 和 sister 会变成黄色
+
+```html
+<h1>This <span class="myclass">headlineis <em>very</em> important</span></h1>
+<h2>brother</h2>
+<h2>sister</h2>
+```
+```css
+h1 + h2 {
+	color: yellow
+}
+```
+-  Column combinator (||)
+
+列组合器，用在table中，表示选中对应列符合条件的单元格
+
+> 浏览器暂不支持
