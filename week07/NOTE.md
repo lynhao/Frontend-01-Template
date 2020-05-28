@@ -69,6 +69,7 @@ or
 ```
 #### @page
 分页媒体访问页面时的表现设置，是一种特殊的盒子模型，除了本身外还可以设置周围的盒子， 没有选择器列表时应用到其他页面，page选择器后面可以跟page类型选择器或者page伪类
+
 ```code
 @page {
 	@top-left {
@@ -202,7 +203,39 @@ css选择器会带上特定的命名空间
 
 字面意思是合格规则，就是我们平时会用的css，由选择器和属性指定构成的规则
 
-#### combination
+### 选择器
+
+- 简单选择器(simple selector)
+- 复合选择器(compound selector)
+- 复杂选择器(complex selector)
+
+#### 简单选择器
+
+简单选择器是一个单一条件构成的元素,它可以是类型选择器[type selector](https://www.w3.org/TR/selectors-4/#type-selector),通用选择器[universal selector](https://www.w3.org/TR/selectors-4/#universal-selector),属性选择器[attribute selector](https://www.w3.org/TR/selectors-4/#attribute-selector),类选择器[class selector](https://www.w3.org/TR/selectors-4/#class-selector),id选择器[ID selector](https://www.w3.org/TR/selectors-4/#id-selector),或者是伪类选择器[peseudo selector](https://www.w3.org/TR/selectors-4/#pseudo-class)
+
+- 类型选择器: 以文档语言元素类型命名,顾名思义就是tag name, eg:h1
+- 通用选择器: 通用选择器是一种特殊的类型选择器,它表示任何元素类型的元素, 就是 *
+- 属性选择器
+  1. [attr]  具有attr属性的元素,无论什么值
+  2. [attr=val] 具有attr属性且值为val的元素
+  3. [attr~=val] 具体attr属性,其值是由空格分隔的字符串,其中一		个是val,如果val包含空格或者是空字符串,将不会代表任何内容
+  4. [attr|=val] 具有attr属性,其值可能是val或者以val开头后跟		随"-"(\u002d)
+- 类选择器: 这个没啥好解释了,就是.(\u002e)
+- id选择器: #(\0023)
+- 伪类选择器: 冒号(:)后跟着伪类的名称作为css的标识, eg: ':valid';如果是功能性伪类,则用一对括号去包含它的参数, eg: ':lang()'
+
+#### 复合选择器
+
+由多个简单选择器构成,单没有被组合器combinator分隔,如果它包含类型选择器或者通用选择器(*),就必须排在组合的第一位
+
+> eg: a#my:visited:before
+
+#### 复杂选择器
+由一个复合选择器或者多个组成,并被combinator分隔
+
+> eg: p>a#my:visited:before
+
+#### 组合器 combination
 
 - Descendant combinator(空格)
 
