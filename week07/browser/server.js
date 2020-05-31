@@ -24,6 +24,9 @@ const server = http.createServer((req, res) => {
     flex: 1;
     background-color:rgb(0,255,0);
 }
+#container > div {
+    color: red;
+}
     </style>
 </head>
 <body>

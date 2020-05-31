@@ -25,17 +25,18 @@ function computeCSS(element) {
 	}
 	for (let rule of rules) {
 		var selectorParts = rule.selectors[0].split(" ").reverse();
-		if(!match(element, selectorParts[0])) {
+		if(!match(element, selectorParts)) {
 			continue;
 		}
 		let matched = false;
 
 		var j = 1;
 		for (var i = 0; i < elements.length; i++) {
-			if (match(elements[i], selectorParts[j])) {
+			if (match(elements[i], selectorParts.slice(selectorParts.length-1))) {
 				j++;
 			}
 		}
+		selectorParts = selectorParts.join('').replace(/[>+\*~]/g, ' ').split(' ')
 		if (j >= selectorParts.length) {
 			matched = true;
 		}
@@ -89,11 +90,7 @@ function specificity(selector) {
 	}
 	return p;
 }
-
-function match(element, selector) {
-	if (!selector || !element.attributes) {
-		return false;
-	}
+function simpleSelector(element, selector) {
 	if (selector.charAt(0) === "#") {
 		var attr = element.attributes.filter(attr => attr.name === "id")[0];
 		if (attr && attr.value === selector.replace("#", '')) {
@@ -112,7 +109,81 @@ function match(element, selector) {
 			return true;
 		}
 	}
-	return false;
+	return false
+}
+function compoundSelector(element, selector) {
+	let hasCombinator = /[>+~\*]/.test(selector.join(''));
+	let straightParent = element.parent;
+	let combinator;
+	if (hasCombinator) {
+		combinator = selector.join('').match(/(>|\+|~|\*])/g)[0];
+	}
+	let idx  = selector.findIndex(list => list === combinator)
+	//
+	if (hasCombinator) {
+		if (combinator === '>') {
+			let ismatch = simpleSelector(element, selector[0])
+			if (ismatch) {
+				if (/[#.]/.test(selector[idx + 1])) {
+					let attr = straightParent.attributes.filter(attr => attr.name === "id" || attr.name === "class")[0];
+					// 表示上一级有attribute属性了
+					if (attr && straightParent.attributes[0].value === selector[idx + 1].replace(/[#.]/g, '')) {
+						return true
+					} else {
+						return false;
+					}				
+				}
+			}
+		} else if (combinator === '+') {
+	
+		} else if (combinator === '~') {
+	
+		} else if (combinator === '*') {
+	
+		}
+	} else {
+		// 比较下一个选择器,这里应该用一个循环处理
+		if (element.attributes.length > 0) {
+			let i = 0
+			while (i < selector.length) {
+				if (/^[#.]/.test(selector[i])) {
+					if (element.attributes[0].value === selector[i].replace(/[#.]/g, '')) {
+						i++;
+						element = element.parent
+					} else {
+						return false;
+					}
+				} else {
+					if (straightParent.tagName === selector[i]) {
+						straightParent = straightParent.parent
+						return true;
+					} else {
+						return false;
+					}
+				}
+				
+			}
+			return true;
+		} else {
+			if (element.tagName === selector[selector.length - 1]) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+}
+function match(element, selector) {
+	// let hasCombinator = /[>+~\*]/.test(selector.join(''))
+	if (!selector || !element.attributes) {
+		return false;
+	}
+	if (selector.length > 1) {
+		return compoundSelector(element, selector)
+	} else {
+		return simpleSelector(element, selector[selector.length - 1])
+	}
+
 }
 
 function emitToken(token) {
@@ -133,12 +204,17 @@ function emitToken(token) {
 				});
 			}
 		}
+		
 		// 添加调用
-		computeCSS(element);
+		element.parent = JSON.parse(JSON.stringify(top)); 
+
+		if (element.tagName === 'div') {
+			computeCSS(element);
+		}
 
 		top.children.push(element);
 		// 注意保留父级对象会出现循环引用, 导致 Converting circular structure to JSON
-		// element.parent = JSON.parse(JSON.stringify(top)); 
+		element.parent = JSON.parse(JSON.stringify(top)); 
 
 		if (!token.isSelfClosing) {
 			stack.push(element);

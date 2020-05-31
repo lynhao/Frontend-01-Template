@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/week07/cssbasic/crawler2.js"
+            "program": "${workspaceFolder}/week07/browser/client.js"
         }
     ]
 }
