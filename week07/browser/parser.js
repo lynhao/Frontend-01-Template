@@ -3,10 +3,11 @@ let currentToken = null;
 let currentAttribute = null;
 let currentTextNode = null;
 var css = require('css');
+let combinator;
 var layout = require('./layout');
 
 
-let stack = [{type: "document", children: []}];
+let stack = [{ type: "document", children: [] }];
 
 let rules = [];
 function addCSSRules(text) {
@@ -25,20 +26,23 @@ function computeCSS(element) {
 	}
 	for (let rule of rules) {
 		var selectorParts = rule.selectors[0].split(" ").reverse();
-		if(!match(element, selectorParts)) {
+		if (!match(element, selectorParts)) {
 			continue;
 		}
 		let matched = false;
-
-		var j = 1;
-		for (var i = 0; i < elements.length; i++) {
-			if (match(elements[i], selectorParts.slice(selectorParts.length-1))) {
-				j++;
-			}
-		}
-		selectorParts = selectorParts.join('').replace(/[>+\*~]/g, ' ').split(' ')
-		if (j >= selectorParts.length) {
+		if (combinator === '+' || combinator === "~") {
 			matched = true;
+		} else {
+			var j = 1;
+			for (var i = 0; i < elements.length; i++) {
+				if (match(elements[i], selectorParts.slice(selectorParts.length - 1))) {
+					j++;
+				}
+			}
+			selectorParts = selectorParts.join(' ').replace(/\u0020/g, '').replace(/[>+\*~]/g, ' ').split(' ')
+			if (j >= selectorParts.length) {
+				matched = true;
+			}
 		}
 		if (matched) {
 			// 匹配到, 加入
@@ -49,7 +53,7 @@ function computeCSS(element) {
 				if (!computedStyle[declaration.property]) {
 					computedStyle[declaration.property] = {}
 				}
-				if(!computedStyle[declaration.property].specificity) {
+				if (!computedStyle[declaration.property].specificity) {
 					computedStyle[declaration.property].value = declaration.value;
 					computedStyle[declaration.property].specificity = sp;
 				} else if (compare(computedStyle[declaration.property].specificity, sp) < 0) {
@@ -63,12 +67,12 @@ function computeCSS(element) {
 
 
 }
-function compare (sp1, sp2) {
+function compare(sp1, sp2) {
 	if (sp1[0] - sp2[0]) {
 		return sp1[1] - sp2[0];
 	}
-	if (sp1[1] -sp2[1]) {
-		return sp1[1] -sp2[1];
+	if (sp1[1] - sp2[1]) {
+		return sp1[1] - sp2[1];
 	}
 	if (sp1[2] - sp2[2]) {
 		return sp1[2] - sp2[2];
@@ -109,49 +113,150 @@ function simpleSelector(element, selector) {
 			return true;
 		}
 	}
-	return false
+	return false;
 }
 function compoundSelector(element, selector) {
 	let hasCombinator = /[>+~\*]/.test(selector.join(''));
 	let straightParent = element.parent;
-	let combinator;
 	if (hasCombinator) {
 		combinator = selector.join('').match(/(>|\+|~|\*])/g)[0];
 	}
-	let idx  = selector.findIndex(list => list === combinator)
+	let idx = selector.findIndex(list => list === combinator)
 	//
 	if (hasCombinator) {
+		let ismatch = simpleSelector(element, selector[0])
 		if (combinator === '>') {
-			let ismatch = simpleSelector(element, selector[0])
 			if (ismatch) {
-				if (/[#.]/.test(selector[idx + 1])) {
+				if (/^[#.]/.test(selector[idx + 1])) {
+					// 如果是combinator是 >, 且当前节点前还有同级元素,则匹配失败
+					if (straightParent.children.length > 0 &&
+						straightParent.children.some(list => list.type === "Element")) {
+						return false;
+					}
 					let attr = straightParent.attributes.filter(attr => attr.name === "id" || attr.name === "class")[0];
 					// 表示上一级有attribute属性了
 					if (attr && straightParent.attributes[0].value === selector[idx + 1].replace(/[#.]/g, '')) {
 						return true
 					} else {
 						return false;
-					}				
+					}
 				}
 			}
 		} else if (combinator === '+') {
-	
+			// 选中兄弟节点
+			if (ismatch) {
+				if (/^[#.]/.test(selector[idx + 1])) {
+					if (straightParent.children.length > 0) {
+						let sibling = straightParent.children.find(list => list.type === "Element")
+						if (sibling) {
+							if (selector[idx + 1].charAt(0) === '#') {
+								if (sibling.attributes[0].name === 'id' && sibling.attributes[0].value === selector[idx + 1].replace('#', '')) {
+									return true;
+								} else {
+									return false;
+								}
+							} else if (selector[idx + 1].charAt(0) === '.') {
+								if (sibling.name === 'class' && sibling.value === selector[idx + 1].replace('.', '')) {
+									return true;
+								} else {
+									return false;
+								}
+							}
+						}
+					}
+					return false;
+				} else {
+
+				}
+			}
 		} else if (combinator === '~') {
-	
+			// 选择器 从第一个开始遍历
+			let _selector = selector.reverse()
+			ismatch = simpleSelector(element, _selector[0])
+			// 如果没有匹配成功, 匹配当前element是否有兄弟元素,且该兄弟元素满足选择器条件,因为~是匹配连续的后继选择器,所以匹配一个就可以知道结果
+			if (!ismatch) {
+				let item = straightParent.children.filter(item => item.type === "Element")
+				if (item.length === 0) {
+					return false;
+				}
+				if (_selector[0].charAt(0) === "#") {
+					// 先假设 它的上一级兄弟元素只有一个属性, 后面给每个元素加个唯一标示
+					let ele = item.filter(list => list.attributes[0].name === "id")[0]
+					let flag = simpleSelector(ele, _selector[0])
+					if (!flag) {
+						return false;
+					} else {
+						if (/^[#.]/.test(_selector[idx + 1])) {
+							if (_selector[idx + 1].charAt(0) === '#') {
+								if (element.attributes.filter(f => f.name === "id")[0].value === _selector[idx + 1].replace('#', '')){
+									return true;
+								} else {
+									return false;
+								}
+							} else if (_selector[idx + 1].charAt(0) === '.') {
+								if (element.attributes.filter(f => f.name === "class")[0].value === _selector[idx + 1].replace('.', '')){
+									return true;
+								} else {
+									return false;
+								}
+							} else {
+								if (_selector[idx + 1] === element.tagName) {
+									return true;
+								} else {
+									return false;
+								}
+							}
+						}
+					}
+				} else if (_selector[0].charAt(0) === ".") {
+
+				} else {
+
+				}
+			} else {
+
+			}
 		} else if (combinator === '*') {
-	
+
 		}
 	} else {
 		// 比较下一个选择器,这里应该用一个循环处理
 		if (element.attributes.length > 0) {
 			let i = 0
-			while (i < selector.length) {
-				if (/^[#.]/.test(selector[i])) {
-					if (element.attributes[0].value === selector[i].replace(/[#.]/g, '')) {
-						i++;
-						element = element.parent
-					} else {
-						return false;
+			let idSel = element.attributes.filter(list => list.name === "id")[0];
+			let classSel = element.attributes.filter(list => list.name === "class")[0];
+			outer: while (i < selector.length) {
+				let hasBoth = selector[i].match(/[#.]/g);
+				let _idName;
+				let _clsName;
+				selector[i].match(/(#\S)|(\.\S)/);
+				let result = selector[i].match(/[#.]/g);
+				if (result) {
+					if (result.length > 1) {
+						if (element.attributes.length < result.length) {
+							return false;
+						}
+						if (element.attributes.length === result.length) {
+							// 找到id
+							if (selector[i].indexOf('#') < selector[i].indexOf('.')) {
+								_idName = selector[i].substring(selector[i].indexOf('#'), selector[i].indexOf('.'));
+								_clsName = selector[i].substring(selector[i].indexOf('.'));
+							} else if (selector[i].indexOf('#') > selector[i].indexOf('.')) {
+								_idName = selector[i].substring(selector[i].indexOf('#'));
+								_clsName = selector[i].substring(selector[i].indexOf('.'), selector[i].indexOf('#'));
+							}
+							if ((idSel && idSel.value === _idName.replace('#', '')) && (classSel && classSel.value === _clsName.replace('.', ''))) {
+								i++;
+								element = element.parent;
+							}
+						}
+					} else if (result.length === 1) {
+						if (element.attributes[0].value === selector[i].replace(/[#.]/g, '')) {
+							i++;
+							element = element.parent
+						} else {
+							return false;
+						}
 					}
 				} else {
 					if (straightParent.tagName === selector[i]) {
@@ -161,7 +266,16 @@ function compoundSelector(element, selector) {
 						return false;
 					}
 				}
-				
+
+				// if (/^[#.]/.test(selector[i])) {
+				// 	if (element.attributes[0].value === selector[i].replace(/[#.]/g, '')) {
+				// 		i++;
+				// 		element = element.parent
+				// 	} else {
+				// 		return false;
+				// 	}
+				// }
+
 			}
 			return true;
 		} else {
@@ -204,23 +318,24 @@ function emitToken(token) {
 				});
 			}
 		}
-		
+
 		// 添加调用
-		element.parent = JSON.parse(JSON.stringify(top)); 
+		element.parent = JSON.parse(JSON.stringify(top));
 
 		if (element.tagName === 'div') {
+			// 判断是否是同一个父级
+			// if (element.parent.attributes[0].value === stack)
 			computeCSS(element);
 		}
-
 		top.children.push(element);
 		// 注意保留父级对象会出现循环引用, 导致 Converting circular structure to JSON
-		element.parent = JSON.parse(JSON.stringify(top)); 
+		element.parent = JSON.parse(JSON.stringify(top));
 
 		if (!token.isSelfClosing) {
 			stack.push(element);
 		}
 		currentTextNode = null;
-	} else if(token.type === "endTag") {
+	} else if (token.type === "endTag") {
 		if (top.tagName !== token.tagName) {
 			throw new Error("tag start end doesn't match!")
 		} else {
@@ -233,7 +348,7 @@ function emitToken(token) {
 		}
 		currentTextNode = null;
 	} else if (token.type === "text") {
-		if(currentTextNode === null) {
+		if (currentTextNode === null) {
 			currentTextNode = {
 				type: "text",
 				content: ""
@@ -305,13 +420,13 @@ function tagName(char) {
 		return beforeAttributeName;
 	} else if (char === "/") {
 		return selfClosingStartTag;
-	} else if(char.match(/^[a-zA-Z]$/)) {
+	} else if (char.match(/^[a-zA-Z]$/)) {
 		currentToken.tagName += char;
 		return tagName;
-	}else if(char === ">"){
+	} else if (char === ">") {
 		emitToken(currentToken);
 		return data;
-	}else {
+	} else {
 		return tagName;
 	}
 }
@@ -321,7 +436,7 @@ function beforeAttributeName(char) {
 		return beforeAttributeName;
 	} else if (char === "/" || char === ">" || char === EOF) {
 		return afterAttributeName(char);
-	} else if(char === "=") {
+	} else if (char === "=") {
 		// return beforeAttributeName;
 	} else {
 		currentAttribute = {
@@ -339,7 +454,7 @@ function attributeName(char) {
 		return beforeAttributeValue;
 	} else if (char === "\u0000") {
 
-	} else if (char === "\"" || char === "'" || char === "<" ) {
+	} else if (char === "\"" || char === "'" || char === "<") {
 
 	} else {
 		currentAttribute.name += char;
@@ -439,16 +554,16 @@ function UnquotedAttributeValue(char) {
 	if (char.match(/^[\t\n\f ]$/)) {
 		currentToken[currentAttribute.name] = currentAttribute.value;
 		return beforeAttributeName;
-	} else if(char === "/") {
+	} else if (char === "/") {
 		currentToken[currentAttribute.name] = currentAttribute.value;
 		return selfClosingStartTag;
-	} else if(char === ">") {
+	} else if (char === ">") {
 		currentToken[currentAttribute.name] = currentAttribute.value;
 		emitToken(currentToken);
 		return data;
 	} else if (char === "\u0000") {
 
-	} else if (char === "\"" || char === "'" || char === "<" || char === "=" || char === "`"){
+	} else if (char === "\"" || char === "'" || char === "<" || char === "=" || char === "`") {
 
 	} else if (char === EOF) {
 
@@ -458,9 +573,9 @@ function UnquotedAttributeValue(char) {
 	}
 }
 
-module.exports.parseHTML = function(html) {
-	let state= data;
-	for(let char of html) {
+module.exports.parseHTML = function (html) {
+	let state = data;
+	for (let char of html) {
 		state = state(char);
 	}
 	state = state(EOF);

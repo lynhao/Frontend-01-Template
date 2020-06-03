@@ -289,7 +289,7 @@ h1 + h2 {
 <h2>sister</h2>
 ```
 ```css
-h1 + h2 {
+h1 ~ h2 {
 	color: yellow
 }
 ```

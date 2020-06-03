@@ -230,9 +230,22 @@ void (async function() {
    let dom = parser.parseHTML(response.body);
    var viewport = images(800, 600);
    render(viewport, dom.children[0].children[3].children[1])
-   viewport.save('viewport.png')
+   viewport.save('./viewport3.png')
   //  console.log(JSON.stringify(dom));
   //  console.log(JSON.stringify(dom));
+  void function() {
+    const kill = (dom) => {
+      if (dom.children.length > 0) {
+        dom.children.forEach(list => {
+          if (list.parent) {
+            delete list.parent
+            kill(list)
+          }
+        })
+      }
+    }
+    kill(dom)
+  }()
   console.log(JSON.stringify(dom, null, "    "));
   // console.log(dom instanceof Object);
   // console.log(dom);
