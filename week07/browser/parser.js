@@ -95,6 +95,9 @@ function specificity(selector) {
 	return p;
 }
 function simpleSelector(element, selector) {
+	if (selector.charAt(0) === "*") {
+		return true;
+	}
 	if (selector.charAt(0) === "#") {
 		var attr = element.attributes.filter(attr => attr.name === "id")[0];
 		if (attr && attr.value === selector.replace("#", '')) {
@@ -116,10 +119,10 @@ function simpleSelector(element, selector) {
 	return false;
 }
 function compoundSelector(element, selector) {
-	let hasCombinator = /[>+~\*]/.test(selector.join(''));
+	let hasCombinator = /[>+~]/.test(selector.join(''));
 	let straightParent = element.parent;
 	if (hasCombinator) {
-		combinator = selector.join('').match(/(>|\+|~|\*])/g)[0];
+		combinator = selector.join('').match(/(>|\+|~|])/g)[0];
 	}
 	let idx = selector.findIndex(list => list === combinator)
 	//
@@ -137,6 +140,12 @@ function compoundSelector(element, selector) {
 					// 表示上一级有attribute属性了
 					if (attr && straightParent.attributes[0].value === selector[idx + 1].replace(/[#.]/g, '')) {
 						return true
+					} else {
+						return false;
+					}
+				} else {
+					if (selector[idx + 1] === straightParent.tagName) {
+						return true;
 					} else {
 						return false;
 					}
@@ -170,54 +179,22 @@ function compoundSelector(element, selector) {
 				}
 			}
 		} else if (combinator === '~') {
-			// 选择器 从第一个开始遍历
-			let _selector = selector.reverse()
-			ismatch = simpleSelector(element, _selector[0])
-			// 如果没有匹配成功, 匹配当前element是否有兄弟元素,且该兄弟元素满足选择器条件,因为~是匹配连续的后继选择器,所以匹配一个就可以知道结果
-			if (!ismatch) {
-				let item = straightParent.children.filter(item => item.type === "Element")
-				if (item.length === 0) {
-					return false;
-				}
-				if (_selector[0].charAt(0) === "#") {
-					// 先假设 它的上一级兄弟元素只有一个属性, 后面给每个元素加个唯一标示
-					let ele = item.filter(list => list.attributes[0].name === "id")[0]
-					let flag = simpleSelector(ele, _selector[0])
-					if (!flag) {
-						return false;
-					} else {
-						if (/^[#.]/.test(_selector[idx + 1])) {
-							if (_selector[idx + 1].charAt(0) === '#') {
-								if (element.attributes.filter(f => f.name === "id")[0].value === _selector[idx + 1].replace('#', '')){
-									return true;
-								} else {
-									return false;
-								}
-							} else if (_selector[idx + 1].charAt(0) === '.') {
-								if (element.attributes.filter(f => f.name === "class")[0].value === _selector[idx + 1].replace('.', '')){
-									return true;
-								} else {
-									return false;
-								}
-							} else {
-								if (_selector[idx + 1] === element.tagName) {
-									return true;
-								} else {
-									return false;
-								}
-							}
+			if (ismatch) {
+				// 判断前面是否存在同父级的兄弟节点
+				let childs = straightParent.children.filter(child => child.type === "Element");
+				if (straightParent.sibling.length > 0) {
+					let flag = false;
+					for (let sib of straightParent.sibling) {
+						flag = simpleSelector(sib, selector[idx + 1]);
+						if (flag) {
+							break;
 						}
 					}
-				} else if (_selector[0].charAt(0) === ".") {
-
-				} else {
-
+					return flag;
 				}
 			} else {
-
+				return false;
 			}
-		} else if (combinator === '*') {
-
 		}
 	} else {
 		// 比较下一个选择器,这里应该用一个循环处理
@@ -259,6 +236,13 @@ function compoundSelector(element, selector) {
 						}
 					}
 				} else {
+					if (selector[i] === '*') {
+						return true;
+					}
+					if (selector.length > 0 && !hasCombinator) {
+						// 
+						return true;
+					}
 					if (straightParent.tagName === selector[i]) {
 						straightParent = straightParent.parent
 						return true;
@@ -288,7 +272,6 @@ function compoundSelector(element, selector) {
 	}
 }
 function match(element, selector) {
-	// let hasCombinator = /[>+~\*]/.test(selector.join(''))
 	if (!selector || !element.attributes) {
 		return false;
 	}
@@ -297,7 +280,6 @@ function match(element, selector) {
 	} else {
 		return simpleSelector(element, selector[selector.length - 1])
 	}
-
 }
 
 function emitToken(token) {
@@ -307,7 +289,8 @@ function emitToken(token) {
 		let element = {
 			type: 'Element',
 			children: [],
-			attributes: []
+			attributes: [],
+			sibling: []
 		}
 		element.tagName = token.tagName;
 		for (let p in token) {
@@ -321,12 +304,10 @@ function emitToken(token) {
 
 		// 添加调用
 		element.parent = JSON.parse(JSON.stringify(top));
-
-		if (element.tagName === 'div') {
-			// 判断是否是同一个父级
-			// if (element.parent.attributes[0].value === stack)
-			computeCSS(element);
+		if (element.tagName === 'span') {
+			debugger
 		}
+		computeCSS(element);
 		top.children.push(element);
 		// 注意保留父级对象会出现循环引用, 导致 Converting circular structure to JSON
 		element.parent = JSON.parse(JSON.stringify(top));
@@ -344,6 +325,9 @@ function emitToken(token) {
 				addCSSRules(top.children[0].content);
 			}
 			layout(top);
+			if (top.parent.type === "Element" && top.tagName !== 'style' && top.tagName !== 'body' && top.tagName !== 'head' && top.tagName !== 'html') {
+				stack[stack.length - 2].sibling.unshift(top);
+			}
 			stack.pop();
 		}
 		currentTextNode = null;
