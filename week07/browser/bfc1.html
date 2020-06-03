@@ -3,9 +3,75 @@
     <div style="width:100px;height: 100px;background-color:aqua;margin:20px"></div>
     <div style="width:100px;height: 100px;background-color:aqua;margin:20px"></div>
     <div style="display:inline-block">
-         <span style="margin: 20px;">123</span>
-         <div style="display:inline-block;width:100px;height: 100px;background-color:aqua;margin:20px">文字 文字 文字 文字文字文字文字文字文字文字</div>
-         <div style="display:inline-block;width:100px;height: 100px;background-color:aqua;margin:20px">文字 文字 文字 文字文字文字文字文字文字文字</div>
-         <div style="width:100px;height: 100px;background-color:aqua;margin:20px">文字 文字 文字 文字文字文字文字文字文字文字</div>
+        <span style="margin: 20px;">123</span>
+        <div style="display:inline-block;width:100px;height: 100px;background-color:aqua;margin:20px">文字 文字 文字
+            文字文字文字文字文字文字文字</div>
+        <div style="display:inline-block;width:100px;height: 100px;background-color:aqua;margin:20px">文字 文字 文字
+            文字文字文字文字文字文字文字</div>
+        <div style="width:100px;height: 100px;background-color:aqua;margin:20px">文字 文字 文字 文字文字文字文字文字文字文字</div>
     </div>
 </div>
+<h1>This <span class="myclass">headlineis <em>very</em> important</span></h1>
+<h2>brother</h2>
+<h2>sister</h2>
+<div id="container">
+    <div id="myid">123</div>
+    <div class="c1" id="child1">456</div>
+    <div class="c1" id="child2">456</div>
+    <div class="c1" id="child1">abc</div>
+</div>
+<style>
+    #myid ~ #child1 {
+        color: yellow
+    }
+
+    h1~h2 {
+        color: red;
+    }
+</style>
+[0,1,3,1] div#a.b .c[id=x]        ->  [id=x] = class选择器
+[0,2,0,0]  #a:not(#b)   ->  not 伪类不参与运算
+[0,0,1,0] *.a     ->  * 也不参与预算
+[0,0,1,1]  div.a
+
+
+标签, 标签, 标签
+标签 元素 
+元素
+元素
+元素,盒
+盒
+
+inline formatting context  IFC
+block formatting context BFC
+
+
+inline-block 一般配合vertical-align: bottom / top
+
+
+如果超过line-height 根据最高元素的baseline 对齐??? 不一定
+
+
+上缘 - 下缘
+
+只要能够容纳新正常流 就是bfc
+除了正常流里面设置了 overflow: visible  bfc会合并, margin就会重叠
+
+bfc 就是从上往下排的盒子(正常流)
+
+block boxes里外都是正常流
+
+block level box 就是可以放进正常流的东西
+￼
+
+1.block-level 就是块级盒子
+
+块级盒子 就是  line-box 和 block-level-box
+
+block-level 就是放进bfc的盒子
+block container 就是可以容纳bfc
+所以两者是包含关系
+
+
+block container 里面是正常流 只有block 和 inline-block是, 
+flex 和inline-flex 都不是block-container, 只有它的一级子元素flex-item才是block-container
