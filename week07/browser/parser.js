@@ -120,12 +120,12 @@ function simpleSelector(element, selector) {
 	}
 	return false;
 }
-function mixedConnector (element, selector) {
+function mixedConnector(element, selector) {
 	let _attr = selector.match(/[#.]/g)
 	if (_attr) {
 		let _idName;
 		let _clsName;
-		if(_attr.length > 1) {
+		if (_attr.length > 1) {
 			if (selector.charAt(0) !== '#' && selector.charAt(0) !== '.') {
 
 			} else {
@@ -149,7 +149,22 @@ function mixedConnector (element, selector) {
 			return simpleSelector(element, selector)
 		}
 	} else {
-
+		if (selector === "*") {
+			return true;
+		} else {
+			if (selector.charAt(0) !== '#' && selector.charAt(0) !== '.') {
+				let ele = selector.match(/[#\.][a-zA-Z0-9]*/);
+				if (!ele) {
+					return simpleSelector(element, selector)
+				} else {
+					let rightPart = ele[0];
+					let leftPart = selector.substring(0, selector.indexOf(rightPart));
+					if (element.tagName !== leftPart) return false;
+					return simpleSelector(element, rightPart);
+				}
+			}
+			return simpleSelector(element, selector);
+		}
 	}
 }
 function compoundSelector(element, selector) {
@@ -199,17 +214,17 @@ function compoundSelector(element, selector) {
 							let childs = straightParent.children.filter(child => child.type === "Element");
 							if (straightParent.sibling.length > 0) {
 								if (selector[idx + 1].charAt(0) === "#") {
-									let _id = straightParent.sibling[straightParent.sibling.length - 1].attributes.filter(item => item.name === "id")[0];
-									sameRoot = _id === selector[idx + 1].replace('#', '');
+									let _id = straightParent.sibling[0].attributes.filter(item => item.name === "id")[0];
+									sameRoot = _id.value === selector[idx + 1].replace('#', '');
 								} else if (selector[idx + 1].charAt(0) === ".") {
-									let _class = straightParent.sibling[straightParent.sibling.length - 1].attributes.filter(item => item.name === "class")[0];
-									sameRoot = _class === selector[idx + 1].replace('.', '');
+									let _class = straightParent.sibling[0].attributes.filter(item => item.name === "class")[0];
+									sameRoot = _class.value === selector[idx + 1].replace('.', '');
 								} else {
-									sameRoot = straightParent.sibling[straightParent.sibling.length - 1].tagName === selector[idx + 1];
+									sameRoot = straightParent.sibling[0].tagName === selector[idx + 1];
 								}
 								let flag = false;
 								for (let sib of straightParent.sibling) {
-									flag = simpleSelector(sib, selector[idx + 1]) 
+									flag = simpleSelector(sib, selector[idx + 1])
 										&& sameRoot;
 									if (flag) {
 										break;
@@ -217,46 +232,64 @@ function compoundSelector(element, selector) {
 								}
 								return flag;
 							}
-							// let sibling = straightParent.children.find(list => list.type === "Element")
-							// if (sibling) {
-							// 	if (selector[idx + 1].charAt(0) === '#') {
-							// 		if (sibling.attributes[0].name === 'id' && sibling.attributes[0].value === selector[idx + 1].replace('#', '')) {
-							// 			if ()
-							// 			return true;
-							// 		} else {
-							// 			return false;
-							// 		}
-							// 	} else if (selector[idx + 1].charAt(0) === '.') {
-							// 		if (sibling.name === 'class' && sibling.value === selector[idx + 1].replace('.', '')) {
-							// 			return true;
-							// 		} else {
-							// 			return false;
-							// 		}
-							// 	}
-							// }
 						}
 						return false;
 					} else {
-	
+
 					}
 				}
 			} else if (combinator === '~') {
+				ismatch = mixedConnector(element, selector[0])
+				// 选中兄弟节点
 				if (ismatch) {
-					// 判断前面是否存在同父级的兄弟节点
-					let childs = straightParent.children.filter(child => child.type === "Element");
-					if (straightParent.sibling.length > 0) {
-						let flag = false;
-						for (let sib of straightParent.sibling) {
-							flag = simpleSelector(sib, selector[idx + 1]);
-							if (flag) {
-								break;
+					if (/^[#.]/.test(selector[idx + 1])) {
+						let sameRoot = false;
+						if (straightParent.children.length > 0) {
+							let childs = straightParent.children.filter(child => child.type === "Element");
+							if (straightParent.sibling.length > 0) {
+								if (selector[idx + 1].charAt(0) === "#") {
+									let _id = straightParent.sibling[straightParent.sibling.length - 1].attributes.filter(item => item.name === "id")[0];
+									sameRoot = _id.value === selector[idx + 1].replace('#', '');
+								} else if (selector[idx + 1].charAt(0) === ".") {
+									let _class = straightParent.sibling[straightParent.sibling.length - 1].attributes.filter(item => item.name === "class")[0];
+									sameRoot = _class.value === selector[idx + 1].replace('.', '');
+								} else {
+									sameRoot = straightParent.sibling[straightParent.sibling.length - 1].tagName === selector[idx + 1];
+								}
+								let flag = false;
+								for (let sib of straightParent.sibling) {
+									flag = simpleSelector(sib, selector[idx + 1])
+										&& sameRoot;
+									if (flag) {
+										break;
+									}
+								}
+								return flag;
 							}
 						}
-						return flag;
+						return false;
+					} else {
+						return false;
 					}
-				} else {
-					return false;
 				}
+
+
+				// if (ismatch) {
+				// 	// 判断前面是否存在同父级的兄弟节点
+				// 	let childs = straightParent.children.filter(child => child.type === "Element");
+				// 	if (straightParent.sibling.length > 0) {
+				// 		let flag = false;
+				// 		for (let sib of straightParent.sibling) {
+				// 			flag = simpleSelector(sib, selector[idx + 1]);
+				// 			if (flag) {
+				// 				break;
+				// 			}
+				// 		}
+				// 		return flag;
+				// 	}
+				// } else {
+				// 	return false;
+				// }
 			}
 		}
 	}
