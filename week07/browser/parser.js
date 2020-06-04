@@ -39,7 +39,9 @@ function computeCSS(element) {
 					j++;
 				}
 			}
-			selectorParts = selectorParts.join(' ').replace(/\u0020/g, '').replace(/[>+\*~]/g, ' ').split(' ')
+			if (selectorParts.some(list => list === ">")) {
+				selectorParts = selectorParts.join(' ').replace(/\u0020/g, '').replace(/[>+\*~]/g, ' ').split(' ')
+			}
 			if (j >= selectorParts.length) {
 				matched = true;
 			}
@@ -118,6 +120,38 @@ function simpleSelector(element, selector) {
 	}
 	return false;
 }
+function mixedConnector (element, selector) {
+	let _attr = selector.match(/[#.]/g)
+	if (_attr) {
+		let _idName;
+		let _clsName;
+		if(_attr.length > 1) {
+			if (selector.charAt(0) !== '#' && selector.charAt(0) !== '.') {
+
+			} else {
+				if (selector.indexOf('#') < selector.indexOf('.')) {
+					_idName = selector.substring(selector.indexOf('#'), selector.indexOf('.'));
+					_clsName = selector.substring(selector.indexOf('.'));
+				} else if (selector.indexOf('#') > selector.indexOf('.')) {
+					_idName = selector.substring(selector.indexOf('#'));
+					_clsName = selector.substring(selector.indexOf('.'), selector.indexOf('#'));
+				}
+				return simpleSelector(element, _idName) && simpleSelector(element, _clsName)
+			}
+		} else if (_attr.length === 1) {
+			// 如果是混合的 如span.class
+			if (selector.charAt(0) !== '#' && selector.charAt(0) !== '.') {
+				let rightPart = selector.match(/[#\.][a-zA-Z0-9]*/)[0]
+				let leftPart = selector.substring(0, selector.indexOf(rightPart))
+				if (element.tagName !== leftPart) return false;
+				return simpleSelector(element, rightPart)
+			}
+			return simpleSelector(element, selector)
+		}
+	} else {
+
+	}
+}
 function compoundSelector(element, selector) {
 	let hasCombinator = /[>+~]/.test(selector.join(''));
 	let straightParent = element.parent;
@@ -126,147 +160,103 @@ function compoundSelector(element, selector) {
 	}
 	let idx = selector.findIndex(list => list === combinator)
 	//
-	if (hasCombinator) {
+	if (selector.length > 1) {
 		let ismatch = simpleSelector(element, selector[0])
-		if (combinator === '>') {
-			if (ismatch) {
-				if (/^[#.]/.test(selector[idx + 1])) {
-					// 如果是combinator是 >, 且当前节点前还有同级元素,则匹配失败
-					if (straightParent.children.length > 0 &&
-						straightParent.children.some(list => list.type === "Element")) {
-						return false;
-					}
-					let attr = straightParent.attributes.filter(attr => attr.name === "id" || attr.name === "class")[0];
-					// 表示上一级有attribute属性了
-					if (attr && straightParent.attributes[0].value === selector[idx + 1].replace(/[#.]/g, '')) {
-						return true
-					} else {
-						return false;
-					}
-				} else {
-					if (selector[idx + 1] === straightParent.tagName) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			}
-		} else if (combinator === '+') {
-			// 选中兄弟节点
-			if (ismatch) {
-				if (/^[#.]/.test(selector[idx + 1])) {
-					if (straightParent.children.length > 0) {
-						let sibling = straightParent.children.find(list => list.type === "Element")
-						if (sibling) {
-							if (selector[idx + 1].charAt(0) === '#') {
-								if (sibling.attributes[0].name === 'id' && sibling.attributes[0].value === selector[idx + 1].replace('#', '')) {
-									return true;
-								} else {
-									return false;
-								}
-							} else if (selector[idx + 1].charAt(0) === '.') {
-								if (sibling.name === 'class' && sibling.value === selector[idx + 1].replace('.', '')) {
-									return true;
-								} else {
-									return false;
-								}
-							}
-						}
-					}
-					return false;
-				} else {
-
-				}
-			}
-		} else if (combinator === '~') {
-			if (ismatch) {
-				// 判断前面是否存在同父级的兄弟节点
-				let childs = straightParent.children.filter(child => child.type === "Element");
-				if (straightParent.sibling.length > 0) {
-					let flag = false;
-					for (let sib of straightParent.sibling) {
-						flag = simpleSelector(sib, selector[idx + 1]);
-						if (flag) {
-							break;
-						}
-					}
-					return flag;
-				}
-			} else {
-				return false;
-			}
-		}
-	} else {
-		// 比较下一个选择器,这里应该用一个循环处理
-		if (element.attributes.length > 0) {
-			let i = 0
-			let idSel = element.attributes.filter(list => list.name === "id")[0];
-			let classSel = element.attributes.filter(list => list.name === "class")[0];
-			outer: while (i < selector.length) {
-				let hasBoth = selector[i].match(/[#.]/g);
-				let _idName;
-				let _clsName;
-				selector[i].match(/(#\S)|(\.\S)/);
-				let result = selector[i].match(/[#.]/g);
-				if (result) {
-					if (result.length > 1) {
-						if (element.attributes.length < result.length) {
+		if (!hasCombinator) {
+			return mixedConnector(element, selector[0]);
+		} else {
+			if (combinator === '>') {
+				ismatch = mixedConnector(element, selector[0]);
+				if (ismatch) {
+					if (/^[#.]/.test(selector[idx + 1])) {
+						// 如果是combinator是 >, 且当前节点前还有同级元素,则匹配失败
+						// if (straightParent.children.length > 0 &&
+						// 	straightParent.children.some(list => list.type === "Element")) {
+						// 	return false;
+						// }
+						let attr = straightParent.attributes.filter(attr => attr.name === "id" || attr.name === "class")[0];
+						// 表示上一级有attribute属性了
+						if (attr && straightParent.attributes[0].value === selector[idx + 1].replace(/[#.]/g, '')) {
+							return true
+						} else {
 							return false;
 						}
-						if (element.attributes.length === result.length) {
-							// 找到id
-							if (selector[i].indexOf('#') < selector[i].indexOf('.')) {
-								_idName = selector[i].substring(selector[i].indexOf('#'), selector[i].indexOf('.'));
-								_clsName = selector[i].substring(selector[i].indexOf('.'));
-							} else if (selector[i].indexOf('#') > selector[i].indexOf('.')) {
-								_idName = selector[i].substring(selector[i].indexOf('#'));
-								_clsName = selector[i].substring(selector[i].indexOf('.'), selector[i].indexOf('#'));
-							}
-							if ((idSel && idSel.value === _idName.replace('#', '')) && (classSel && classSel.value === _clsName.replace('.', ''))) {
-								i++;
-								element = element.parent;
-							}
-						}
-					} else if (result.length === 1) {
-						if (element.attributes[0].value === selector[i].replace(/[#.]/g, '')) {
-							i++;
-							element = element.parent
+					} else {
+						if (selector[idx + 1] === straightParent.tagName) {
+							return true;
 						} else {
 							return false;
 						}
 					}
-				} else {
-					if (selector[i] === '*') {
-						return true;
-					}
-					if (selector.length > 0 && !hasCombinator) {
-						// 
-						return true;
-					}
-					if (straightParent.tagName === selector[i]) {
-						straightParent = straightParent.parent
-						return true;
-					} else {
+				}
+			} else if (combinator === '+') {
+				ismatch = mixedConnector(element, selector[0])
+				// 选中兄弟节点
+				if (ismatch) {
+					if (/^[#.]/.test(selector[idx + 1])) {
+						let sameRoot = false;
+						if (straightParent.children.length > 0) {
+							let childs = straightParent.children.filter(child => child.type === "Element");
+							if (straightParent.sibling.length > 0) {
+								if (selector[idx + 1].charAt(0) === "#") {
+									let _id = straightParent.sibling[straightParent.sibling.length - 1].attributes.filter(item => item.name === "id")[0];
+									sameRoot = _id === selector[idx + 1].replace('#', '');
+								} else if (selector[idx + 1].charAt(0) === ".") {
+									let _class = straightParent.sibling[straightParent.sibling.length - 1].attributes.filter(item => item.name === "class")[0];
+									sameRoot = _class === selector[idx + 1].replace('.', '');
+								} else {
+									sameRoot = straightParent.sibling[straightParent.sibling.length - 1].tagName === selector[idx + 1];
+								}
+								let flag = false;
+								for (let sib of straightParent.sibling) {
+									flag = simpleSelector(sib, selector[idx + 1]) 
+										&& sameRoot;
+									if (flag) {
+										break;
+									}
+								}
+								return flag;
+							}
+							// let sibling = straightParent.children.find(list => list.type === "Element")
+							// if (sibling) {
+							// 	if (selector[idx + 1].charAt(0) === '#') {
+							// 		if (sibling.attributes[0].name === 'id' && sibling.attributes[0].value === selector[idx + 1].replace('#', '')) {
+							// 			if ()
+							// 			return true;
+							// 		} else {
+							// 			return false;
+							// 		}
+							// 	} else if (selector[idx + 1].charAt(0) === '.') {
+							// 		if (sibling.name === 'class' && sibling.value === selector[idx + 1].replace('.', '')) {
+							// 			return true;
+							// 		} else {
+							// 			return false;
+							// 		}
+							// 	}
+							// }
+						}
 						return false;
+					} else {
+	
 					}
 				}
-
-				// if (/^[#.]/.test(selector[i])) {
-				// 	if (element.attributes[0].value === selector[i].replace(/[#.]/g, '')) {
-				// 		i++;
-				// 		element = element.parent
-				// 	} else {
-				// 		return false;
-				// 	}
-				// }
-
-			}
-			return true;
-		} else {
-			if (element.tagName === selector[selector.length - 1]) {
-				return true;
-			} else {
-				return false;
+			} else if (combinator === '~') {
+				if (ismatch) {
+					// 判断前面是否存在同父级的兄弟节点
+					let childs = straightParent.children.filter(child => child.type === "Element");
+					if (straightParent.sibling.length > 0) {
+						let flag = false;
+						for (let sib of straightParent.sibling) {
+							flag = simpleSelector(sib, selector[idx + 1]);
+							if (flag) {
+								break;
+							}
+						}
+						return flag;
+					}
+				} else {
+					return false;
+				}
 			}
 		}
 	}

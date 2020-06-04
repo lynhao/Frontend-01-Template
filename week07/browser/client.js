@@ -237,8 +237,9 @@ void (async function() {
     const kill = (dom) => {
       if (dom.children.length > 0) {
         dom.children.forEach(list => {
-          if (list.parent) {
+          if (list.parent || list.sibling) {
             delete list.parent
+            delete list.sibling
             kill(list)
           }
         })
