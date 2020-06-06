@@ -9,16 +9,22 @@ const server = http.createServer((req, res) => {
     res.end(`<html>
 <head>
 <style>
-.c1 + .c1 {
+#container > div {
     color: pink;
 }
 </style>
 </head>
 <body>
-    <div id="container">
+    <p id="container">
         <div class="c1" id="child1"></div>
+        <span class="text">
+            <em class="em"></em>
+        </span>
+        <div class="c1" id="child1">
+          <p class="p"></p>
+        </div>
         <div class="c1" id="child1"></div>
-    </div>
+    </p>
 </body>
 </html>`);
 })
