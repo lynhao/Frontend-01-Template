@@ -1,3 +1,27 @@
-> 明天补上总结
-aside-> 跟主体不相关的内容
-hr语义-> 表示故事走向转变或话题的转变
+## 语义化标签
+
+- aside 跟主体不相关的内容
+- hr语义 表示故事走向转变或话题的转变
+- abbr 表示缩写
+- p 段落
+- strong 黑体
+- em 有增强语气的表现
+- cite 引用的标题
+- q 引用的内容
+- time 日期时间
+- figure+figcaption 引用图片
+- dfn 定义标签
+- dl/dt/dd 是dfn列表的形式
+- samp 实例输出
+- code 一段代码
+- pre 不需要浏览器帮忙做自动换行
+- nav 导航
+- artile 文章的主题
+- hgroup 用于包裹 h1, h2...等标题
+- main 入口,只能用一次
+- section 包含在HTML 文档中的独立部分, 一般会有一个包含的标题
+- header 用于展示介绍行内容, 可能是标题,Logo, 搜素框,作者名称等
+- footer 页脚
+- mark 标记为突出显示的文本
+- summary  用在**details**的一个内容摘要, 标题或者图例
+- details 创建一个挂件,仅在切换展开状态时才要显示包含的信息
