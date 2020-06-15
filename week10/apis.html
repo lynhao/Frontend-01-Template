@@ -16,7 +16,6 @@ function filterOut(names, props) {
 
 }
 
-
 names = names.filter( e => {
     try { 
         return !(window[e].prototype instanceof Node)
