@@ -108,6 +108,9 @@ names = filterOut(names, ["URL","URLSearchParams"])
 //https://xhr.spec.whatwg.org/#
 names = filterOut(names, ["XMLHttpRequest","XMLHttpRequestEventTarget","XMLHttpRequestUpload","Event","ProgressEvent","FormData","EventTarget"]);
 
+//https://w3c.github.io/webrtc-pc/#rtctrackevent
+names = filterOut(names, ["RTCPeerConnection", "RTCSessionDescription", "RTCIceCandidate", "RTCPeerConnectionIceEvent", "RTCPeerConnectionIceErrorEvent", "RTCCertificate", "RTCRtpSender", "RTCRtpReceiver", "RTCRtpTransceiver", "RTCDtlsTransport", "RTCIceTransport", "RTCTrackEvent", "RTCSctpTransport", "RTCDataChannel", "RTCDataChannelEvent", "RTCDTMFSender", "RTCDTMFToneChangeEvent", "RTCStatsReport", "RTCError", "RTCErrorEvent"]);
+
 console.log(names.length, names);
 
 </script>
