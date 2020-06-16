@@ -111,6 +111,15 @@ names = filterOut(names, ["XMLHttpRequest","XMLHttpRequestEventTarget","XMLHttpR
 //https://w3c.github.io/webrtc-pc/#rtctrackevent
 names = filterOut(names, ["RTCPeerConnection", "RTCSessionDescription", "RTCIceCandidate", "RTCPeerConnectionIceEvent", "RTCPeerConnectionIceErrorEvent", "RTCCertificate", "RTCRtpSender", "RTCRtpReceiver", "RTCRtpTransceiver", "RTCDtlsTransport", "RTCIceTransport", "RTCTrackEvent", "RTCSctpTransport", "RTCDataChannel", "RTCDataChannelEvent", "RTCDTMFSender", "RTCDTMFToneChangeEvent", "RTCStatsReport", "RTCError", "RTCErrorEvent"]);
 
+//https://w3c.github.io/mediasession/#the-mediasession-interface
+names = filterOut(names, ["MediaMetadata", "MediaSession"]);
+
+//https://www.w3.org/TR/2017/WD-image-capture-20170621/
+names = filterOut(names, ["ImageCapture", "PhotoCapabilities", "MediaSettingsRange"]);
+
+//https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+names = filterOut(names, ["MediaStream", "MediaStreamTrack", "MediaStreamTrackEvent", "MediaDevices", "MediaDeviceInfo", "InputDeviceInfo"]);
+
 console.log(names.length, names);
 
 </script>
