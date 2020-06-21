@@ -1,0 +1,136 @@
+<html>
+
+<head>
+    <style>
+        .light div {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 60px;
+        }
+
+        .light .red {
+            background-color: black;
+        }
+
+        .light .yellow {
+            background-color: black;
+        }
+
+        .light .green {
+            background-color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="light">
+        <div class="red"></div>
+        <div class="yellow"></div>
+        <div class="green"></div>
+    </div>
+    <script>
+        var red = document.getElementsByClassName('red')[0]
+        var yellow = document.getElementsByClassName('yellow')[0]
+        var green = document.getElementsByClassName('green')[0]
+        function sleep(duration) {
+            return new Promise(function (resolve) {
+                setTimeout(resolve, duration);
+            })
+        }
+        async function changeColor(duration, color, cls) {
+            if (color === "red") {
+                document.getElementsByClassName(color)[0].style.background = color;
+                document.getElementsByClassName("yellow")[0].style.background = 'black';
+                document.getElementsByClassName("green")[0].style.background = 'black';
+            }
+            if (color === "yellow") {
+                document.getElementsByClassName(color)[0].style.background = color;
+                document.getElementsByClassName("red")[0].style.background = 'black';
+                document.getElementsByClassName("green")[0].style.background = 'black';
+            }
+            if (color === "green") {
+                document.getElementsByClassName(color)[0].style.background = color;
+                document.getElementsByClassName("yellow")[0].style.background = 'black';
+                document.getElementsByClassName("red")[0].style.background = 'black';
+            }
+            await sleep(duration);
+
+        }
+        async function main() {
+            while (true) {
+                await changeColor(3000, "green");
+                await changeColor(1000, "yellow");
+                await changeColor(2000, "red");
+            }
+        }
+        // main()
+    </script>
+    <script>
+        function green() {
+            console.log('green')
+        }
+        function red() {
+            console.log('red')
+        }
+        function yellow() {
+            console.log('yellow')
+        }
+        function asleep(t) {
+            return new Promise(resolve => {
+                setTimeout(resolve, t);
+            })
+        }
+        function* go() {
+            while (true) {
+                green();
+                yield asleep(1000)
+                yellow();
+                yield asleep(2000)
+                red();
+                yield asleep(3000)
+            }
+        }
+        function run(iterator) {
+            let { value, done} = iterator.next()
+            if (done) return;
+            if (value instanceof Promise) {
+                value.then(() => {
+                    run(iterator)
+                })
+            }
+        }
+        function co(generator) {
+            return function () {
+               run(generator())
+                // let iterator = generator()
+                // let { value, done } = iterator.next()
+                // if (done) {
+                //     return;
+                // }
+                // if (value instanceof Promise) {
+                //     value.then(() => {
+                //         co(iterator)
+                //     })
+                // }
+            }
+
+        }
+        go = co(go);
+        // function co(iterator) {
+        //     let {value, done } = iterator.next()
+        //     if(done) {
+        //         return;
+        //     }
+        //     if (value instanceof Promise) {
+        //         value.then(() => {
+        //             co(iterator)
+        //         })
+        //     }
+        // }
+        // co(go())
+    </script>
+</body>
+
+</html>
