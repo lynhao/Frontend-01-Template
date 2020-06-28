@@ -1,3 +1,4 @@
+// O(logN)
 class BinaryHeap {
     constructor(data, compare) {
         this.data = data
