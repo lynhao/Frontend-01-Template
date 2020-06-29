@@ -17,8 +17,18 @@
                 setTimeout(resolve, t);
             });
         }
+        function* go() {
+            while (true) {
+                green();
+                yield sleep(1000)
+                yellow();
+                yield sleep(2000)
+                red();
+                yield sleep(3000)
+            }
+        }
     `
-    var regexp = /(function|new|return)|([ \t\f\n\r]+)|([a-zA-Z][a-zA-Z0-9]*)|([\(\)\{\},;])/g
+    var regexp = /(function\*|function|new|return|yield|while)|([ \t\f\n\r]+)|([a-zA-Z][a-zA-Z0-9]*)|([\(\)\{\},;])/g
 
     var dictionary = ["keywords", "whitespace", "indentifier", "punctuator"];
 
