@@ -1,0 +1,44 @@
+<script>
+    function find(source, pattern) {
+        var count = 0;
+        // 统计*号个数
+        for(let j = 0; j < pattern.length; j++) {
+            if (pattern[j] === '*') {
+                count++
+            }
+        }
+        //过滤掉count = 0情况
+        //...
+        //处理*号
+        var i = 0;
+        var lastIndex = 0;
+
+        for (i = 0; pattern[i] !== '*'; i++) {
+            if (pattern[i] !== source[i] && pattern[i] !== '?') {
+                return false
+            }
+        }
+        lastIndex = i;
+
+        for (var p = 0; p < count - 1; p++) {
+            i++;
+            var temp = '';
+            while (pattern[i] !== '*') {
+                temp += pattern[i];
+                i++;
+            }
+            let reg = new RegExp(temp.replace(/\?/g, "[\\s\\S]"), "g");
+            reg.lastIndex = lastIndex
+        }
+
+        // 匹配最后一个*后面的字符
+        for (let k = 0; k <= source.length - lastIndex && pattern[pattern.length - k] !== '*'; k++) {
+            debugger
+            if (source[source.length - k] !== pattern[pattern.length - k]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    console.log(find("abcabcabxc", "a*b*?x*c"))
+</script>

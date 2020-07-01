@@ -35,6 +35,16 @@
     // find('abcxxyz', 'xy')
     // find('abcabcabx', 'abcabx') //false 
     // abcabx => [0,0,0,1,2,0]
+    abcabx
+    bcabx
+    cabx
+    abx
+    bx
+    x
+    abbaabbcabbd
+    abbd
+    abcabcabx
+    abcabx
     function find(source, pattern) {
         let table = new Array(pattern.length).fill(0);
         let k = 0;
@@ -68,8 +78,9 @@
         }
         return false;
     }
-    find('abcabcabx', 'abcabx') //false
-    find('aaaaaaaaax', 'aaax')
+    find('abcabcabx', 'abcabx') //true
+    find('abcabcabeabx', 'abcabx')
+    // find('aaaaaaaaax', 'aaax')
     // function find(source, pattern) {
     //     let starCount = 0;
     //     for (let i = 0; i < pattern.length; i++) {
@@ -102,10 +113,10 @@
     //             subPattern += pattern[i];
     //             i++;
     //         } 
-    //         let reg = new RegExp(subPattern.replace(/\?/g, "[\\s\\S]"));
+    //         let reg = new RegExp(subPattern.replace(/\?/g, "[\\s\\S]"), "g");
     //         reg.lastIndex = lastIndex;
 
-    //         console.log(reg.exec(source));
+    //         // console.log(reg.exec(source));
     //         lastIndex = reg.lastIndex;
     //     }
 
@@ -117,5 +128,6 @@
     //     return true;
 
     // }
+    console.log(find("abcabcabxc", "a*b*?x*c"))
     // find("abcabcabxaac", "a*b*bx*c");
 // </script>
