@@ -1,0 +1,71 @@
+<script>
+    let handlers = new Map();
+    let useReactivities = [];
+
+    let reactivities = new Map();
+
+    let object = {
+        a: {x: 3},
+        b: 2
+    }
+
+    function reactive(obj) {
+        if (reactivities.has(obj)) {
+            return reactivities.get(obj);
+        }
+        let proxy = new Proxy(obj, {
+            get(obj ,prop) {
+                // 信息收集
+                useReactivities.push([obj, prop]);
+                // 深度查找对象
+                if (typeof obj[prop] === 'object') {
+                    return reactive(obj[prop]);
+                }
+                return obj[prop];
+            },
+            set(obj, prop, value) {
+                obj[prop] = value;
+                debugger
+                if (handlers.get(obj)) {
+                    if (handlers.get(obj).get(prop)) {
+                        for(let handler of handlers.get(obj).get(prop)) {
+                            handler();
+                        }
+                    }
+                }
+                return obj[prop];
+            }
+        });
+        reactivities.set(obj, proxy);
+        reactivities.set(proxy, proxy);
+        return proxy;
+    }
+
+    function effect(handler) {
+        useReactivities = [];
+        handler();
+        // handlers.set(handler);
+        // console.log(useReactivities)
+        for (let useReactivity of useReactivities) {
+            let [obj, prop] = useReactivity;
+            if (!handlers.has(obj)) {
+                handlers.set(obj, new Map());
+            }
+            if (!handlers.get(obj).has(prop)) {
+                handlers.get(obj).set(prop, []);
+            }
+            handlers.get(obj).get(prop).push(handler);
+        }
+    }
+    let v; 
+    let p = reactive(object);
+
+    effect(() => v = p.a.x);
+    console.log(v);
+    p.a = {x: 4};
+    // debugger
+    effect(() => v = p.a.x);
+    p.a.x = 10;
+    console.log(v);
+
+</script>

@@ -1,0 +1,34 @@
+<script>
+    let hanlders = [];
+    let object = {
+        a: 1,
+        b: 2
+    }
+
+    function reactive(obj) {
+        return new Proxy(obj, {
+            get(obj ,prop) {
+                return obj[prop];
+            },
+            set(obj, prop, value) {
+                obj[prop] = value
+                for (let handler of hanlders) {
+                    handler();
+                }
+                return obj[prop];
+            }
+        });
+    }
+
+    function effect(handler) {
+        handler();
+        hanlders.push(handler);
+    }
+    let dummy;
+
+    var proxy = reactive(object);
+    effect(() => dummy = proxy.a);
+    console.log('before dummy=', dummy)
+    proxy.a = 2;
+    console.log('after dummy=', dummy)
+</script>
