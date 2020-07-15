@@ -14,7 +14,7 @@ const analyze = (filename) => {
     // 遍历AST, 对ImportDeclaration节点进行处理
     // https://babeljs.io/docs/en/babel-traverse#docsNav
     // console.log(ast.program.body)
-    const dependencies = [];
+    const dependencies = {};
     traverse(ast, {
         ImportDeclaration({node}) {
            // 保存各个文件中的依赖
@@ -50,7 +50,30 @@ const iteratorDependencies = (entry) => {
             code: item.code
         }
     }
-    console.log(module);
+    // console.log(module);
+    return module;
 }
 
-iteratorDependencies('./src/index.js')
+const outputCode = (entry) => {
+    console.log(entry)
+    var chaosCode = JSON.stringify(iteratorDependencies(entry));
+    return `
+        (function(modules){
+            function _require(path) {
+                var exports = {};
+                function getRelativePath(relativePath) {
+                    return _require(modules[path].dependencies[relativePath]);
+                }
+                (function(require, exports, code){
+                    eval(code)
+                })(getRelativePath, exports, modules[path].code);
+                return exports;
+            }
+            _require('${entry}')
+        })(${chaosCode})
+    `
+}
+
+const code = outputCode('./src/index.js');
+console.log(code);
+
