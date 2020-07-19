@@ -50,12 +50,11 @@ const iteratorDependencies = (entry) => {
             code: item.code
         }
     }
-    // console.log(module);
+    console.log(module);
     return module;
 }
 
 const outputCode = (entry) => {
-    console.log(entry)
     var chaosCode = JSON.stringify(iteratorDependencies(entry));
     return `
         (function(modules){
@@ -75,5 +74,4 @@ const outputCode = (entry) => {
 }
 
 const code = outputCode('./src/index.js');
-console.log(code);
-
+// console.log(code);
