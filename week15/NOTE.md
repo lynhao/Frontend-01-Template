@@ -1,1 +1,3 @@
-# 每周总结可以写在这里
+# 将Carousel跟Animation/Timeline 进行整合
+
+具体代码在 CarouselAnimation目录下, tick函数没有写在构造函数里面, 主要this的指向问题, 还有**animation** 下面的 **add** 函数的第一个条件判断跟老师有些差入, 如果跟视频一样直接调用this.tick() 那么tick函数里面的addTime是undefined 会导致 progression 出现 **NaN**  视频老师看起来没对这个值做判断, 所以我用 ```this.requestId = requestAnimationFrame(this.tick)``  替代, 然后代码img的节点一直是在root 下面 也跟视频 有些区别 这点还在调试对比中... 后面会重新整理...
