@@ -123,12 +123,13 @@
 
                     let up = (event) => {
                         let offset = 0;
-                        console.log(event.clientX, startX)
+                        // console.log(event.clientX, startX)
                         if (event.clientX - startX > 250) {
                             offset = 1;
                         } else if (event.clientX -startX < -250) {
                             offset = -1;
                         }
+                        console.log(event.clientX - startX, offset, position)
 
                         current.style.transition = "";
                         last.style.transition = "";
@@ -137,6 +138,7 @@
                         current.style.transform = `translateX(${ offset * 500 - 500 * position}px)`
                         last.style.transform = `translateX(${offset * 500 - 500 - 500 * lastPosition}px)`
                         next.style.transform = `translateX(${offset * 500 + 500 - 500 * nextPosition}px)`
+
                         position = (position - offset + this.data.length ) % this.data.length;
                         console.log(position, offset)
                         document.removeEventListener('mousemove', move);
