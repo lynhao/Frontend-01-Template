@@ -92,7 +92,7 @@ export class Carousel {
                 timeline.add(lastAnimation);
                 timeline.add(currentAnimation);
                 timeline.add(nextAnimation);
-                position = (position - 1 + this.data.length) % this.data.length;
+                position = (position - direction + this.data.length) % this.data.length;
                 nextPicStopHandler = setTimeout(nextPic, 3000);
 
             }
