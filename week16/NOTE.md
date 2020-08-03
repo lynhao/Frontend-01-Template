@@ -1,1 +1,1 @@
-# 每周总结可以写在这里
+将gesture手势操作和animation动画 跟 Carousel 结合起来, 实现一个完整的轮播组件功能
