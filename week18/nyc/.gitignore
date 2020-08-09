@@ -1,0 +1,7 @@
+/node_modules
+.babelrc
+.nycrc
+package.json
+package-lock.json
+/dist
+.nyc_output
