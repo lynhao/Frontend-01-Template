@@ -233,9 +233,7 @@ function selfClosingStartTag(c){
         emit(currentToken);
         return data;
     } else if(c == "EOF") {
-
     } else {
-        
     }
 }
 
@@ -247,7 +245,7 @@ function endTagOpen(c){
         }
         return tagName(c);
     } else if(c == ">") {
-
+        return data;
     } else if(c == EOF) {
         
     } else {
@@ -398,7 +396,7 @@ function scriptDataEndTagNameP(c) {
 let spaces = 0
 function scriptDataEndTag(c) {
     if (c === " ") {
-        spaces++;
+        spaces++
         return scriptDataEndTag;
     } else if (c === ">") {
         emit({
@@ -425,9 +423,11 @@ function afterAttributeName(c) {
         return afterAttributeName;
     } else if(c == "/") {
         return selfClosingStartTag;
-    } else if(c == "=") {
-        return beforeAttributeValue;
-    } else if(c == ">") {
+    } 
+    // else if(c == "=") {
+    //     return beforeAttributeValue;
+    // } 
+    else if(c == ">") {
         currentToken[currentAttribute.name] = currentAttribute.value;
         emit(currentToken);
         return data;

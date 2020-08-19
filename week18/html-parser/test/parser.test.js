@@ -90,6 +90,36 @@ it('parse single element has content', function () {
     let doc = parseHTML("<EOF></EOF>"); 
   })
 
+  it("before attribute name with space/tab", function() {
+    let doc = parseHTML("<div  id=1></div>"); 
+  })
+  it("before attribute value with space/tab", function() {
+    let doc = parseHTML("<div id= 1></div>"); 
+  })
+
+  it("after double quota still have quota", function() {
+    let doc = parseHTML('<div id="1""></div>'); 
+  })
+
+  it("the atrribute value has no quota and is the self closing tag", function() {
+    let doc = parseHTML('<img name=1/>'); 
+  })
+  
+//   it("after equal sign with space/tab", function() {
+//     let doc = parseHTML('<div id>=></div>'); 
+//   })
+
+  it("tag end with great than sign", function() {
+    let doc = parseHTML('</>'); 
+  })
+  it("selfClosingStartTag EOF", function() {
+    let doc = parseHTML('</>'); 
+  })
+
+  it('self closing in tagName', function() {
+    let doc = parseHTML("<img/>"); 
+  })
+
   it('script', function() {
     let content = `<div>abcd</div>
 <span>x</span>
@@ -109,7 +139,9 @@ it('parse single element has content', function () {
     assert.equal(text.type, "text")
     assert.equal(text.content, content)
   })
-
+  it('script end has space', function() {
+    let doc = parseHTML(`<script></script >`);
+  })
   it('script', function() {
     let content = `<`;
     let doc = parseHTML(`<script>${content}</script>`);
