@@ -305,7 +305,9 @@ function emitToken(token) {
 			if (top.tagName === "style") {
 				addCSSRules(top.children[0].content);
 			}
+			console.log(top)
 			layout(top);
+
 			if (top.parent.type === "Element" && top.tagName !== 'style' && top.tagName !== 'body' && top.tagName !== 'head' && top.tagName !== 'html') {
 				stack[stack.length - 2].sibling.unshift(top);
 			}

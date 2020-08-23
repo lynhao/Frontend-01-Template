@@ -2,6 +2,7 @@ const net = require("net")
 const parser = require('./parser')
 var images = require("images")
 const render = require('./render')
+const path = require('path')
 
 class Request {
   // M: url = host + port + path
@@ -230,7 +231,8 @@ void (async function() {
    let dom = parser.parseHTML(response.body);
    var viewport = images(800, 600);
    render(viewport, dom.children[0].children[3].children[1])
-   viewport.save('./viewport3.png')
+  let output = path.join(__dirname, 'view.png')
+   viewport.save(output)
   //  console.log(JSON.stringify(dom));
   //  console.log(JSON.stringify(dom));
   void function() {

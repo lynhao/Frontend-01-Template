@@ -4,16 +4,21 @@ function getStyle(element) {
     }
     console.log("---style----")
     for (let prop in element.computedStyle) {
-        console.log(prop);
+        // console.log(prop);
         var p = element.computedStyle.value;
         element.style[prop] = element.computedStyle[prop].value;
-
         if (element.style[prop].toString().match(/px$/)) {
             element.style[prop] = parseInt(element.style[prop]);
         }
         if (element.style[prop].toString().match(/^[0-9\.]+$/)) {
             element.style[prop] = parseInt(element.style[prop]);
         }
+        if (prop.match(/-([\s\S])/)) {
+            let keyName = prop.replace(/-([\s\S])/, c => c.split('')[1].toUpperCase());
+            element.style[keyName] = element.style[prop];
+            // element.style[prop] = undefined;
+        }
+
     }
     return element.style;
 }
@@ -26,7 +31,7 @@ function layout(element) {
         return;
     }
     // 过滤掉文本节点
-    console.log(element);
+    // console.log(element);
     var items = element.children.filter(e => e.type === 'Element');
 
     items.sort(function (a, b) {
@@ -124,7 +129,7 @@ function layout(element) {
                 elementStyle[mainSize] = elementStyle[mainSize] + itemStyle[mainSize];
             }
         }
-        console.log(elementStyle[mainSize])
+        // console.log(elementStyle[mainSize])
         isAutoMainSize = true;
     }
 
@@ -171,7 +176,7 @@ function layout(element) {
         }
     }
     flexLine.mainSpace = mainSpace;
-    console.log('item', items);
+    // console.log('item', items);
 
     if (style.flexWrap === "nowrap" || isAutoMainSize) {
         flexLine.crossSpace = (style[crossSize] !== undefined) ? style[crossSize] : crossSpace;
@@ -341,7 +346,7 @@ function layout(element) {
         }
         crossBase += crossSign * (lineCrossSize + step);
     });
-    console.log(items);
+    // console.log(items);
 }
 
 module.exports = layout;
