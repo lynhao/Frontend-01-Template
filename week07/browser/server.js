@@ -18,7 +18,7 @@ const server = http.createServer((req, res) => {
 #container #myid {
     width: 200px;
 	height: 50px;
-	align-self: center;
+	align-self: flex-end;
     background-color:rgb(255,0,0);
 }
 #container .c1 {
@@ -27,7 +27,7 @@ const server = http.createServer((req, res) => {
 }
 #container .c2 {
     flex: 1;
-    background-color: lightcoral;
+    background-color: rgb(222,144,158);
 }
     </style>
 </head>
