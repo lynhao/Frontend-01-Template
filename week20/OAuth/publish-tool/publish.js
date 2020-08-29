@@ -45,8 +45,8 @@ const server = http.createServer((request, res) => {
 
     archive.pipe(req);
     archive.on('end', (data) => {
-        req.end();
         console.log('publish success!!!')
+        res.end('publish success!!!')
         server.close();
     })
     // console.log("real publish!!")
